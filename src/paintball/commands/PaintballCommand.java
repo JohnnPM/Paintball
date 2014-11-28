@@ -7,8 +7,12 @@
  */
 package paintball.commands;
 
+import java.util.logging.Level;
+
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import paintball.Paintball;
 import paintball.commands.PBCommandFramework.Command;
 import paintball.commands.PBCommandFramework.CommandArgs;
 import paintball.commands.PBCommandFramework.CommandListener;
@@ -27,10 +31,13 @@ public class PaintballCommand implements CommandListener
 		{
 			Player player = info.getPlayer();
 			player.sendMessage(References.PB_CMD_MSG);
-		} 
-		else
+		} else
 		{
-			
+			for (String msg : References.PB_CMD_MSG)
+			{
+				Paintball.get().getPBLogger()
+						.log(Level.INFO, ChatColor.stripColor(msg));
+			}
 		}
 	}
 }

@@ -33,6 +33,11 @@ public class PaintballAPI
 		return playerManager;
 	}
 	
+	@Deprecated public TeamManager getTeamManager()
+	{
+		return teamManager;
+	}
+	
 	public void addPlayer(Player player) 
 	{
 		playerManager.addPlayer(player);
