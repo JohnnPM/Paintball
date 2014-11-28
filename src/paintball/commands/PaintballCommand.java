@@ -16,9 +16,17 @@ import paintball.commands.PBCommandFramework.CommandListener;
  */
 public class PaintballCommand implements CommandListener
 {
-	@Command(command = "paintball", permission = "paintball.admin", aliases = {"pb"})
-	public void paintball(CommandArgs args)
+	@Command(command = "paintball", permission = "paintball.admin", aliases =
+	{ "pb" })
+	public void paintball(CommandArgs info)
 	{
-		
+		if (info.isPlayer())
+		{
+			
+		} 
+		else
+		{
+			
+		}
 	}
 }

@@ -7,10 +7,17 @@
  */
 package paintball.manager;
 
+import paintball.Paintball;
+
 /**
  * 
  */
 public class TeamManager
 {
-
+	private Paintball plugin;
+	
+	public TeamManager(Paintball plugin)
+	{
+		this.plugin = plugin;
+	}
 }
