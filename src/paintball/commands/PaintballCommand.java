@@ -7,9 +7,12 @@
  */
 package paintball.commands;
 
+import org.bukkit.entity.Player;
+
 import paintball.commands.PBCommandFramework.Command;
 import paintball.commands.PBCommandFramework.CommandArgs;
 import paintball.commands.PBCommandFramework.CommandListener;
+import paintball.lib.References;
 
 /**
  * 
@@ -22,7 +25,8 @@ public class PaintballCommand implements CommandListener
 	{
 		if (info.isPlayer())
 		{
-			
+			Player player = info.getPlayer();
+			player.sendMessage(References.PB_CMD_MSG);
 		} 
 		else
 		{
