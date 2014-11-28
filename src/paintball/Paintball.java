@@ -14,6 +14,7 @@ import lombok.Getter;
 import org.apache.commons.lang.Validate;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import paintball.commands.PBCommandFramework;
 import paintball.lib.References;
 
 /**
@@ -31,6 +32,8 @@ public class Paintball extends JavaPlugin
 	@Getter private final PaintballLogger pBLogger =
 			new PaintballLogger(this);
 	
+	@Getter private PBCommandFramework cmdFramework;
+	
 	@Override public void onLoad()
 	{
 		log(References.LOADING_MSG);
@@ -40,6 +43,10 @@ public class Paintball extends JavaPlugin
 	@Override public void onEnable()
 	{
 		try {
+			cmdFramework = new PBCommandFramework(get());
+			cmdFramework.registerCommands();
+			cmdFramework.registerHelp();
+			
 			PaintballUtil.registerEvents(get());
 		} catch (Exception e) {
 			e.printStackTrace();
