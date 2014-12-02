@@ -27,8 +27,8 @@ public class TeamManager
 	public TeamManager(Paintball plugin)
 	{
 		this.plugin = plugin;
-		this.team1 = new Team("PLACEHOLDERONE", "[ONE]", ChatColor.WHITE);
-		this.team2 = new Team("PLACEHOLDERTWO", "[TWO]", ChatColor.BLACK);
+		this.team1 = new Team("moose", "[ONE]", ChatColor.WHITE);
+		this.team2 = new Team("llama", "[TWO]", ChatColor.BLACK);
 	}
 	
 	public Team getTeamOne()
@@ -41,7 +41,7 @@ public class TeamManager
 		return team2;
 	}
 	
-	private class Team 
+	public class Team 
 	{
 		private ArrayList<String> players = new ArrayList<String>();
 		
@@ -71,7 +71,7 @@ public class TeamManager
 			return prefix;
 		}
 		
-		public void setPrefix(String name)
+		public void setPrefix(String prefix)
 		{
 			this.prefix = prefix;
 		}

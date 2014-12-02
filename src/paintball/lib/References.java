@@ -17,7 +17,7 @@ public class References
 	public static final String NAME = "Paintball";
 	public static final String VERSION = "0.0.1-SNAPSHOT";
 	public static final String AUTHOR = "Johnn (598Johnn897)";
-	public static final String CREDITS = "Phil999999999";
+	public static final String CREDITS = "Bailey <3 (EpicBailey10), Phil999999999, lyert";
 	public static final String DESCRIPTION = "A majestic game where you throw paintballs at other people and they die.";
 	
 	public static final String CHAT_PREFIX = "PB";

@@ -29,14 +29,20 @@ public class PaintballCommand implements CommandListener
 	{
 		if (info.isPlayer())
 		{
-			Player player = info.getPlayer();
-			player.sendMessage(References.PB_CMD_MSG);
+			if (info.getArgs().length == 0)
+			{
+				Player player = info.getPlayer();
+				player.sendMessage(References.PB_CMD_MSG);
+			}
 		} else
 		{
-			for (String msg : References.PB_CMD_MSG)
+			if (info.getArgs().length == 0)
 			{
-				Paintball.get().getPBLogger()
-						.log(Level.INFO, ChatColor.stripColor(msg));
+				for (String msg : References.PB_CMD_MSG)
+				{
+					Paintball.get().getPBLogger()
+							.log(Level.INFO, ChatColor.stripColor(msg));
+				}
 			}
 		}
 	}

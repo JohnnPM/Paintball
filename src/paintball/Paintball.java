@@ -34,6 +34,8 @@ public class Paintball extends JavaPlugin
 	
 	@Getter private PBCommandFramework cmdFramework;
 	
+	@Getter public PaintballAPI PBAPI;
+	
 	@Override public void onLoad()
 	{
 		log(References.LOADING_MSG);
@@ -48,6 +50,14 @@ public class Paintball extends JavaPlugin
 			cmdFramework.registerHelp();
 			
 			PaintballUtil.registerEvents(get());
+			
+			PBAPI = new PaintballAPI();
+			if (!PBAPI.isInitialized())
+			{
+				PBAPI.init(get());
+				getPBLogger().log(Level.INFO, "PaintballAPI Initialized!");
+			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

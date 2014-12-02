@@ -11,21 +11,34 @@ import java.util.ArrayList;
 
 import org.bukkit.entity.Player;
 
+import paintball.manager.GameManager;
 import paintball.manager.PlayerManager;
 import paintball.manager.TeamManager;
+import paintball.manager.TeamManager.Team;
 
 /**
  * 
  */
 public class PaintballAPI
 {
-	private PlayerManager playerManager;
-	private TeamManager teamManager;
+	private static PlayerManager playerManager;
+	private static TeamManager teamManager;
+	private static GameManager gameManager;
 	
-	public PaintballAPI(Paintball plugin)
+	private static boolean initialized = false;
+	
+	public void init(Paintball plugin)
 	{
-		this.playerManager = new PlayerManager(plugin);
-		this.teamManager = new TeamManager(plugin);
+		playerManager = new PlayerManager(plugin);
+		teamManager = new TeamManager(plugin);
+		gameManager = new GameManager(plugin);
+		
+		initialized = true;
+	}
+	
+	public boolean isInitialized()
+	{
+		return initialized;
 	}
 	
 	@Deprecated public PlayerManager getPlayerManager()
@@ -38,6 +51,12 @@ public class PaintballAPI
 		return teamManager;
 	}
 	
+	@Deprecated public GameManager getGameManager()
+	{
+		return gameManager;
+	}
+	
+	// #### Player Manager #### //
 	public void addPlayer(Player player) 
 	{
 		playerManager.addPlayer(player);
@@ -52,4 +71,40 @@ public class PaintballAPI
 	{
 		return playerManager.getPlayers();
 	}
+	// #### Player Manager End #### //
+	
+	// #### Team Manager ####//
+	public Team getTeamOne()
+	{
+		return teamManager.getTeamOne();
+	}
+	
+	public Team getTeamTwo()
+	{
+		return teamManager.getTeamTwo();
+	}
+	
+	public void addPlayerToTeamOne(Player player)
+	{
+		teamManager.getTeamOne().addPlayer(player);
+	}
+	
+	public void addPlayerToTeamTwo(Player player)
+	{
+		teamManager.getTeamTwo().addPlayer(player);
+	}
+	
+	public ArrayList<String> getPlayersOnTeamOne()
+	{
+		return teamManager.getTeamOne().getPlayers();
+	}
+	
+	public ArrayList<String> getPlayersOnTeamTwo()
+	{
+		return teamManager.getTeamTwo().getPlayers();
+	}
+	// #### Team Manager End #### //
+	
+	// #### Game Manager #### //
+	// #### Game Manager End #### //
 }

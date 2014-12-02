@@ -45,6 +45,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.SimplePluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import paintball.Paintball;
+
 /**
  * Command Framework - CommandFramework <br>
  * The main command framework class used for controlling the framework.
@@ -53,29 +55,34 @@ import org.bukkit.plugin.java.JavaPlugin;
  * 
  * @author minnymin3
  */
-public class PBCommandFramework {
+public class PBCommandFramework
+{
 
 	private final Map<String, Entry<Method, Object>> commandMap = new HashMap<String, Entry<Method, Object>>();
 	private CommandMap map;
-	private final Plugin plugin;
+	private final Paintball plugin;
 
 	/**
 	 * Initializes the command framework and sets up the command maps
 	 * 
 	 * @param plugin
 	 */
-	public PBCommandFramework(Plugin plugin) {
+	public PBCommandFramework(Paintball plugin)
+	{
 		this.plugin = plugin;
-		if (plugin.getServer().getPluginManager() instanceof SimplePluginManager) {
+		if (plugin.getServer().getPluginManager() instanceof SimplePluginManager)
+		{
 			SimplePluginManager manager = (SimplePluginManager) plugin
 					.getServer().getPluginManager();
-			try {
+			try
+			{
 				Field field = SimplePluginManager.class
 						.getDeclaredField("commandMap");
 				field.setAccessible(true);
 				map = (CommandMap) field.get(manager);
 			} catch (IllegalArgumentException | NoSuchFieldException
-					| IllegalAccessException | SecurityException e) {
+					| IllegalAccessException | SecurityException e)
+			{
 				e.printStackTrace();
 			}
 		}
@@ -96,28 +103,35 @@ public class PBCommandFramework {
 	 * @return Always returns true for simplicity's sake in onCommand
 	 */
 	public boolean handleCommand(CommandSender sender, String label,
-			org.bukkit.command.Command cmd, String[] args) {
-		for (int i = args.length; i >= 0; i--) {
+			org.bukkit.command.Command cmd, String[] args)
+	{
+		for (int i = args.length; i >= 0; i--)
+		{
 			StringBuilder buffer = new StringBuilder();
 			buffer.append(label.toLowerCase());
-			for (int x = 0; x < i; x++) {
+			for (int x = 0; x < i; x++)
+			{
 				buffer.append(".").append(args[x].toLowerCase());
 			}
 			String cmdLabel = buffer.toString();
-			if (commandMap.containsKey(cmdLabel)) {
+			if (commandMap.containsKey(cmdLabel))
+			{
 				Entry<Method, Object> entry = commandMap.get(cmdLabel);
 				Command command = entry.getKey().getAnnotation(Command.class);
-				if (!sender.hasPermission(command.permission())) {
+				if (!sender.hasPermission(command.permission()))
+				{
 					sender.sendMessage(command.noPerm());
 					return true;
 				}
-				try {
+				try
+				{
 					entry.getKey().invoke(
 							entry.getValue(),
 							new CommandArgs(sender, cmd, label, args, cmdLabel
 									.split("\\.").length - 1));
 				} catch (IllegalArgumentException | InvocationTargetException
-						| IllegalAccessException e) {
+						| IllegalAccessException e)
+				{
 					e.printStackTrace();
 				}
 				return true;
@@ -134,36 +148,45 @@ public class PBCommandFramework {
 	 * @param obj
 	 *            The object to register the commands of
 	 */
-	public void registerCommands(Object obj) {
-		for (Method m : obj.getClass().getMethods()) {
-			if (m.getAnnotation(Command.class) != null) {
+	public void registerCommands(Object obj)
+	{
+		for (Method m : obj.getClass().getMethods())
+		{
+			if (m.getAnnotation(Command.class) != null)
+			{
 				Command command = m.getAnnotation(Command.class);
 				if (m.getParameterTypes().length > 1
-						|| m.getParameterTypes()[0] != CommandArgs.class) {
+						|| m.getParameterTypes()[0] != CommandArgs.class)
+				{
 					System.out.println("Unable to register command "
 							+ m.getName() + ". Unexpected method arguments");
 					continue;
 				}
 				registerCommand(command, command.command(), m, obj);
-				for (String alias : command.aliases()) {
+				for (String alias : command.aliases())
+				{
 					registerCommand(command, alias, m, obj);
 				}
-			} else if (m.getAnnotation(Completer.class) != null) {
+			} else if (m.getAnnotation(Completer.class) != null)
+			{
 				Completer comp = m.getAnnotation(Completer.class);
 				if (m.getParameterTypes().length > 1
 						|| m.getParameterTypes().length == 0
-						|| m.getParameterTypes()[0] != CommandArgs.class) {
+						|| m.getParameterTypes()[0] != CommandArgs.class)
+				{
 					System.out.println("Unable to register tab completer "
 							+ m.getName() + ". Unexpected method arguments");
 					continue;
 				}
-				if (m.getReturnType() != List.class) {
+				if (m.getReturnType() != List.class)
+				{
 					System.out.println("Unable to register tab completer "
 							+ m.getName() + ". Unexpected return type");
 					continue;
 				}
 				registerCompleter(comp.command(), m, obj);
-				for (String alias : comp.aliases()) {
+				for (String alias : comp.aliases())
+				{
 					registerCompleter(alias, m, obj);
 				}
 			}
@@ -177,37 +200,47 @@ public class PBCommandFramework {
 	 * @author Not2EXceL
 	 * @see Not2EXceL's CommandAPI
 	 */
-	public void registerCommands() {
+	public void registerCommands()
+	{
 		Class<?>[] classes = ClassEnumerator.getInstance()
 				.getClassesFromThisJar(plugin);
-		if (classes == null || classes.length == 0) {
+		if (classes == null || classes.length == 0)
+		{
 			return;
 		}
-		for (Class<?> c : classes) {
-			try {
+		for (Class<?> c : classes)
+		{
+			try
+			{
 				if (CommandListener.class.isAssignableFrom(c)
-						&& !c.isInterface() && !c.isEnum() && !c.isAnnotation()) {
-					if (JavaPlugin.class.isAssignableFrom(c)) {
-						if (plugin.getClass().equals(c)) {
-							plugin.getLogger().log(Level.INFO,
-									"Searching class: " + c.getSimpleName());
+						&& !c.isInterface() && !c.isEnum() && !c.isAnnotation())
+				{
+					if (JavaPlugin.class.isAssignableFrom(c))
+					{
+						if (plugin.getClass().equals(c))
+						{
+							plugin.getPBLogger().log(Level.INFO,
+									"Searching Class: " + c.getSimpleName());
 							registerCommands(plugin);
 						}
-					} else {
-						plugin.getLogger().log(Level.INFO,
+					} else
+					{
+						plugin.getPBLogger().log(Level.INFO,
 								"Searching class: " + c.getSimpleName());
 						registerCommands(c.newInstance());
 					}
 				}
-			} catch (InstantiationException e) {
-				plugin.getLogger().log(
+			} catch (InstantiationException e)
+			{
+				plugin.getPBLogger().log(
 						Level.INFO,
 						c.getSimpleName()
 								+ " does not use the default constructor");
 
 				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				plugin.getLogger().log(
+			} catch (IllegalAccessException e)
+			{
+				plugin.getPBLogger().log(
 						Level.INFO,
 						c.getSimpleName()
 								+ " does not use the default constructor");
@@ -220,11 +253,14 @@ public class PBCommandFramework {
 	/**
 	 * Registers all the commands under the plugin's help
 	 */
-	public void registerHelp() {
+	public void registerHelp()
+	{
 		Set<HelpTopic> help = new TreeSet<HelpTopic>(
 				HelpTopicComparator.helpTopicComparatorInstance());
-		for (String s : commandMap.keySet()) {
-			if (!s.contains(".")) {
+		for (String s : commandMap.keySet())
+		{
+			if (!s.contains("."))
+			{
 				org.bukkit.command.Command cmd = map.getCommand(s);
 				HelpTopic topic = new GenericCommandHelpTopic(cmd);
 				help.add(topic);
@@ -237,65 +273,80 @@ public class PBCommandFramework {
 	}
 
 	private void registerCommand(Command command, String label, Method m,
-			Object obj) {
+			Object obj)
+	{
 		Entry<Method, Object> entry = new AbstractMap.SimpleEntry<Method, Object>(
 				m, obj);
 		commandMap.put(label.toLowerCase(), entry);
 		String cmdLabel = label.replace(".", ",").split(",")[0].toLowerCase();
-		if (map.getCommand(cmdLabel) == null) {
+		if (map.getCommand(cmdLabel) == null)
+		{
 			org.bukkit.command.Command cmd = new BukkitCommand(cmdLabel, plugin);
 			map.register(plugin.getName(), cmd);
 		}
 		if (!command.description()
 				.equalsIgnoreCase("Much Description. So Wow.")
-				&& cmdLabel == label) {
+				&& cmdLabel == label)
+		{
 			map.getCommand(cmdLabel).setDescription(command.description());
 		}
 		if (!command.usage().equalsIgnoreCase("Much Usage. So Wow.")
-				&& cmdLabel == label) {
+				&& cmdLabel == label)
+		{
 			map.getCommand(cmdLabel).setUsage(command.usage());
 		}
 	}
 
-	private void registerCompleter(String label, Method m, Object obj) {
+	private void registerCompleter(String label, Method m, Object obj)
+	{
 		String cmdLabel = label.replace(".", ",").split(",")[0].toLowerCase();
-		if (map.getCommand(cmdLabel) == null) {
+		if (map.getCommand(cmdLabel) == null)
+		{
 			org.bukkit.command.Command command = new BukkitCommand(cmdLabel,
 					plugin);
 			map.register(plugin.getName(), command);
 		}
-		if (map.getCommand(cmdLabel) instanceof BukkitCommand) {
+		if (map.getCommand(cmdLabel) instanceof BukkitCommand)
+		{
 			BukkitCommand command = (BukkitCommand) map.getCommand(cmdLabel);
-			if (command.completer == null) {
+			if (command.completer == null)
+			{
 				command.completer = new BukkitCompleter();
 			}
 			command.completer.addCompleter(label, m, obj);
-		} else if (map.getCommand(cmdLabel) instanceof PluginCommand) {
-			try {
+		} else if (map.getCommand(cmdLabel) instanceof PluginCommand)
+		{
+			try
+			{
 				Object command = map.getCommand(cmdLabel);
 				Field field = command.getClass().getDeclaredField("completer");
 				field.setAccessible(true);
-				if (field.get(command) == null) {
+				if (field.get(command) == null)
+				{
 					BukkitCompleter completer = new BukkitCompleter();
 					completer.addCompleter(label, m, obj);
 					field.set(command, completer);
-				} else if (field.get(command) instanceof BukkitCompleter) {
+				} else if (field.get(command) instanceof BukkitCompleter)
+				{
 					BukkitCompleter completer = (BukkitCompleter) field
 							.get(command);
 					completer.addCompleter(label, m, obj);
-				} else {
+				} else
+				{
 					System.out
 							.println("Unable to register tab completer "
 									+ m.getName()
 									+ ". A tab completer is already registered for that command!");
 				}
-			} catch (Exception ex) {
+			} catch (Exception ex)
+			{
 				ex.printStackTrace();
 			}
 		}
 	}
 
-	private void defaultCommand(CommandArgs args) {
+	private void defaultCommand(CommandArgs args)
+	{
 		args.getSender().sendMessage(
 				args.getLabel() + " is not handled! Oh noes!");
 	}
@@ -309,7 +360,8 @@ public class PBCommandFramework {
 	 */
 	@Target(ElementType.METHOD)
 	@Retention(RetentionPolicy.RUNTIME)
-	public @interface Command {
+	public @interface Command
+	{
 
 		/**
 		 * The name of the command. If it is a sub command then its values would
@@ -341,7 +393,8 @@ public class PBCommandFramework {
 		 * 
 		 * @return
 		 */
-		public String[] aliases() default {};
+		public String[] aliases() default
+		{};
 
 		/**
 		 * The description that will appear in /help of the command
@@ -368,7 +421,8 @@ public class PBCommandFramework {
 	 */
 	@Target(ElementType.METHOD)
 	@Retention(RetentionPolicy.RUNTIME)
-	public @interface Completer {
+	public @interface Completer
+	{
 
 		/**
 		 * The command that this completer completes. If it is a sub command
@@ -385,7 +439,8 @@ public class PBCommandFramework {
 		 * 
 		 * @return
 		 */
-		String[] aliases() default {};
+		String[] aliases() default
+		{};
 
 	}
 
@@ -396,7 +451,8 @@ public class PBCommandFramework {
 	 * 
 	 * @author minnymin3
 	 */
-	class BukkitCommand extends org.bukkit.command.Command {
+	class BukkitCommand extends org.bukkit.command.Command
+	{
 
 		private final Plugin owningPlugin;
 		protected BukkitCompleter completer;
@@ -408,7 +464,8 @@ public class PBCommandFramework {
 		 * @param label
 		 * @param owner
 		 */
-		protected BukkitCommand(String label, Plugin owner) {
+		protected BukkitCommand(String label, Plugin owner)
+		{
 			super(label);
 			this.executor = owner;
 			this.owningPlugin = owner;
@@ -417,20 +474,25 @@ public class PBCommandFramework {
 
 		@Override
 		public boolean execute(CommandSender sender, String commandLabel,
-				String[] args) {
+				String[] args)
+		{
 			boolean success = false;
 
-			if (!owningPlugin.isEnabled()) {
+			if (!owningPlugin.isEnabled())
+			{
 				return false;
 			}
 
-			if (!testPermission(sender)) {
+			if (!testPermission(sender))
+			{
 				return true;
 			}
 
-			try {
+			try
+			{
 				success = executor.onCommand(sender, this, commandLabel, args);
-			} catch (Throwable ex) {
+			} catch (Throwable ex)
+			{
 				throw new CommandException(
 						"Unhandled exception executing command '"
 								+ commandLabel + "' in plugin "
@@ -438,9 +500,11 @@ public class PBCommandFramework {
 						ex);
 			}
 
-			if (!success && usageMessage.length() > 0) {
+			if (!success && usageMessage.length() > 0)
+			{
 				for (String line : usageMessage.replace("<command>",
-						commandLabel).split("\n")) {
+						commandLabel).split("\n"))
+				{
 					sender.sendMessage(line);
 				}
 			}
@@ -451,27 +515,33 @@ public class PBCommandFramework {
 		@Override
 		public List<String> tabComplete(CommandSender sender, String alias,
 				String[] args) throws CommandException,
-				IllegalArgumentException {
+				IllegalArgumentException
+		{
 			Validate.notNull(sender, "Sender cannot be null");
 			Validate.notNull(args, "Arguments cannot be null");
 			Validate.notNull(alias, "Alias cannot be null");
 
 			List<String> completions = null;
-			try {
-				if (completer != null) {
+			try
+			{
+				if (completer != null)
+				{
 					completions = completer.onTabComplete(sender, this, alias,
 							args);
 				}
-				if (completions == null && executor instanceof TabCompleter) {
+				if (completions == null && executor instanceof TabCompleter)
+				{
 					completions = ((TabCompleter) executor).onTabComplete(
 							sender, this, alias, args);
 				}
-			} catch (Throwable ex) {
+			} catch (Throwable ex)
+			{
 				StringBuilder message = new StringBuilder();
 				message.append(
 						"Unhandled exception during tab completion for command '/")
 						.append(alias).append(' ');
-				for (String arg : args) {
+				for (String arg : args)
+				{
 					message.append(arg).append(' ');
 				}
 				message.deleteCharAt(message.length() - 1)
@@ -480,17 +550,20 @@ public class PBCommandFramework {
 				throw new CommandException(message.toString(), ex);
 			}
 
-			if (completions == null) {
+			if (completions == null)
+			{
 				return super.tabComplete(sender, alias, args);
 			}
 			return completions;
 		}
 
-		public CommandExecutor getExecutor() {
+		public CommandExecutor getExecutor()
+		{
 			return executor;
 		}
 
-		public void setExecutor(CommandExecutor executor) {
+		public void setExecutor(CommandExecutor executor)
+		{
 			this.executor = executor;
 		}
 
@@ -503,11 +576,13 @@ public class PBCommandFramework {
 	 * 
 	 * @author minnymin3
 	 */
-	class BukkitCompleter implements TabCompleter {
+	class BukkitCompleter implements TabCompleter
+	{
 
 		private final Map<String, Entry<Method, Object>> completers = new HashMap<String, Entry<Method, Object>>();
 
-		public void addCompleter(String label, Method m, Object obj) {
+		public void addCompleter(String label, Method m, Object obj)
+		{
 			completers.put(label, new AbstractMap.SimpleEntry<Method, Object>(
 					m, obj));
 		}
@@ -515,25 +590,32 @@ public class PBCommandFramework {
 		@SuppressWarnings("unchecked")
 		@Override
 		public List<String> onTabComplete(CommandSender sender,
-				org.bukkit.command.Command command, String label, String[] args) {
-			for (int i = args.length; i >= 0; i--) {
+				org.bukkit.command.Command command, String label, String[] args)
+		{
+			for (int i = args.length; i >= 0; i--)
+			{
 				StringBuilder buffer = new StringBuilder();
 				buffer.append(label.toLowerCase());
-				for (int x = 0; x < i; x++) {
-					if (!args[x].equals("") && !args[x].equals(" ")) {
+				for (int x = 0; x < i; x++)
+				{
+					if (!args[x].equals("") && !args[x].equals(" "))
+					{
 						buffer.append(".").append(args[x].toLowerCase());
 					}
 				}
 				String cmdLabel = buffer.toString();
-				if (completers.containsKey(cmdLabel)) {
+				if (completers.containsKey(cmdLabel))
+				{
 					Entry<Method, Object> entry = completers.get(cmdLabel);
-					try {
+					try
+					{
 						return (List<String>) entry.getKey().invoke(
 								entry.getValue(),
 								new CommandArgs(sender, command, label, args,
 										cmdLabel.split("\\.").length - 1));
 					} catch (IllegalArgumentException | IllegalAccessException
-							| InvocationTargetException e) {
+							| InvocationTargetException e)
+					{
 						e.printStackTrace();
 					}
 				}
@@ -549,7 +631,8 @@ public class PBCommandFramework {
 	 * 
 	 * @author minnymin3
 	 */
-	public class CommandArgs {
+	public class CommandArgs
+	{
 
 		private final CommandSender sender;
 		private final org.bukkit.command.Command command;
@@ -559,14 +642,16 @@ public class PBCommandFramework {
 
 		protected CommandArgs(CommandSender sender,
 				org.bukkit.command.Command command, String label,
-				String[] args, int subCommand) {
+				String[] args, int subCommand)
+		{
 			String[] modArgs = new String[args.length - subCommand];
 			System.arraycopy(args, 0 + subCommand, modArgs, 0, args.length
 					- subCommand);
 
 			StringBuilder buffer = new StringBuilder();
 			buffer.append(label);
-			for (int x = 0; x < subCommand; x++) {
+			for (int x = 0; x < subCommand; x++)
+			{
 				buffer.append(".").append(args[x]);
 			}
 			String cmdLabel = buffer.toString();
@@ -586,7 +671,8 @@ public class PBCommandFramework {
 		 * 
 		 * @return sender
 		 */
-		public CommandSender getSender() {
+		public CommandSender getSender()
+		{
 			return sender;
 		}
 
@@ -595,7 +681,8 @@ public class PBCommandFramework {
 		 * 
 		 * @return
 		 */
-		public org.bukkit.command.Command getCommand() {
+		public org.bukkit.command.Command getCommand()
+		{
 			return command;
 		}
 
@@ -604,7 +691,8 @@ public class PBCommandFramework {
 		 * 
 		 * @return Something like 'test.subcommand'
 		 */
-		public String getLabel() {
+		public String getLabel()
+		{
 			return label;
 		}
 
@@ -616,7 +704,8 @@ public class PBCommandFramework {
 		 * 
 		 * @return
 		 */
-		public String[] getArgs() {
+		public String[] getArgs()
+		{
 			return args;
 		}
 
@@ -625,7 +714,8 @@ public class PBCommandFramework {
 		 * 
 		 * @return the description
 		 */
-		public String getDescription() {
+		public String getDescription()
+		{
 			return description;
 		}
 
@@ -634,7 +724,8 @@ public class PBCommandFramework {
 		 * 
 		 * @return the permission
 		 */
-		public String getPermission() {
+		public String getPermission()
+		{
 			return permission;
 		}
 
@@ -643,7 +734,8 @@ public class PBCommandFramework {
 		 * 
 		 * @return the no_permission
 		 */
-		public String getNoPermission() {
+		public String getNoPermission()
+		{
 			return no_permission;
 		}
 
@@ -652,7 +744,8 @@ public class PBCommandFramework {
 		 * 
 		 * @return the usage
 		 */
-		public String getUsage() {
+		public String getUsage()
+		{
 			return usage;
 		}
 
@@ -661,7 +754,8 @@ public class PBCommandFramework {
 		 * 
 		 * @return the name
 		 */
-		public String getName() {
+		public String getName()
+		{
 			return name;
 		}
 
@@ -670,17 +764,21 @@ public class PBCommandFramework {
 		 * 
 		 * @return
 		 */
-		public boolean isPlayer() {
+		public boolean isPlayer()
+		{
 			return sender instanceof Player;
 		}
 
 		/**
 		 * @return Player if commandSender is a player else returns false
 		 */
-		public Player getPlayer() {
-			if (sender instanceof Player) {
+		public Player getPlayer()
+		{
+			if (sender instanceof Player)
+			{
 				return (Player) sender;
-			} else {
+			} else
+			{
 				return null;
 			}
 		}
@@ -694,7 +792,8 @@ public class PBCommandFramework {
 	 * 
 	 * @author Not2EXceL
 	 */
-	public interface CommandListener {
+	public interface CommandListener
+	{
 
 	}
 
@@ -705,11 +804,13 @@ public class PBCommandFramework {
 	 * 
 	 * @author Not2EXceL
 	 */
-	public static class ClassEnumerator {
+	public static class ClassEnumerator
+	{
 
 		private static volatile ClassEnumerator instance;
 
-		public static ClassEnumerator getInstance() {
+		public static ClassEnumerator getInstance()
+		{
 			if (instance == null)
 				;
 			{
@@ -718,48 +819,64 @@ public class PBCommandFramework {
 			}
 		}
 
-		public List<Class<?>> getClassesFromLocation(File location) {
+		public List<Class<?>> getClassesFromLocation(File location)
+		{
 			final List<Class<?>> classes = new ArrayList<Class<?>>();
-			if (location.isDirectory()) {
-				for (File file : Arrays.asList(location.listFiles())) {
-					try {
-						ClassLoader classLoader = new URLClassLoader(
-								new URL[] { file.toURI().toURL() }, this
-										.getClass().getClassLoader());
+			if (location.isDirectory())
+			{
+				for (File file : Arrays.asList(location.listFiles()))
+				{
+					try
+					{
+						ClassLoader classLoader = new URLClassLoader(new URL[]
+						{ file.toURI().toURL() }, this.getClass()
+								.getClassLoader());
 						if (file.getName().toLowerCase().trim()
-								.endsWith(".class")) {
+								.endsWith(".class"))
+						{
 							classes.add(classLoader.loadClass(file.getName()
 									.replace(".class", "").replace("/", ".")));
 						} else if (file.getName().toLowerCase().trim()
-								.endsWith(".jar")) {
+								.endsWith(".jar"))
+						{
 							classes.addAll(getClassesFromJar(file, classLoader));
-						} else if (file.isDirectory()) {
+						} else if (file.isDirectory())
+						{
 							classes.addAll(getClassesFromLocation(file));
 						}
-					} catch (MalformedURLException e) {
+					} catch (MalformedURLException e)
+					{
 						e.printStackTrace();
-					} catch (ClassNotFoundException e) {
+					} catch (ClassNotFoundException e)
+					{
 						e.printStackTrace();
 					}
 				}
-			} else {
-				try {
-					ClassLoader classLoader = new URLClassLoader(
-							new URL[] { location.toURI().toURL() }, this
-									.getClass().getClassLoader());
+			} else
+			{
+				try
+				{
+					ClassLoader classLoader = new URLClassLoader(new URL[]
+					{ location.toURI().toURL() }, this.getClass()
+							.getClassLoader());
 					if (location.getName().toLowerCase().trim()
-							.endsWith(".class")) {
+							.endsWith(".class"))
+					{
 						classes.add(classLoader.loadClass(location.getName()
 								.replace(".class", "").replace("/", ".")));
 					} else if (location.getName().toLowerCase().trim()
-							.endsWith(".jar")) {
+							.endsWith(".jar"))
+					{
 						classes.addAll(getClassesFromJar(location, classLoader));
-					} else if (location.isDirectory()) {
+					} else if (location.isDirectory())
+					{
 						classes.addAll(getClassesFromLocation(location));
 					}
-				} catch (MalformedURLException e) {
+				} catch (MalformedURLException e)
+				{
 					e.printStackTrace();
-				} catch (ClassNotFoundException e) {
+				} catch (ClassNotFoundException e)
+				{
 					e.printStackTrace();
 				}
 			}
@@ -767,26 +884,32 @@ public class PBCommandFramework {
 		}
 
 		@SuppressWarnings("resource")
-		public Class<?>[] getClassesFromThisJar(Object object) {
+		public Class<?>[] getClassesFromThisJar(Object object)
+		{
 			final List<Class<?>> classes = new ArrayList<Class<?>>();
 			ClassLoader classLoader = null;
 			URI uri = null;
-			try {
+			try
+			{
 				uri = object.getClass().getProtectionDomain().getCodeSource()
 						.getLocation().toURI();
-				classLoader = new URLClassLoader(new URL[] { uri.toURL() },
-						ClassEnumerator.class.getClassLoader());
-			} catch (URISyntaxException e) {
+				classLoader = new URLClassLoader(new URL[]
+				{ uri.toURL() }, ClassEnumerator.class.getClassLoader());
+			} catch (URISyntaxException e)
+			{
 				e.printStackTrace();
-			} catch (MalformedURLException e) {
+			} catch (MalformedURLException e)
+			{
 				e.printStackTrace();
 			}
-			if (uri == null) {
+			if (uri == null)
+			{
 				throw new RuntimeException("No uri for "
 						+ this.getClass().getProtectionDomain().getCodeSource()
 								.getLocation());
 			}
-			if (classLoader == null) {
+			if (classLoader == null)
+			{
 				throw new RuntimeException("No classLoader for "
 						+ this.getClass().getProtectionDomain().getCodeSource()
 								.getLocation());
@@ -797,25 +920,31 @@ public class PBCommandFramework {
 		}
 
 		public List<Class<?>> getClassesFromJar(File file,
-				ClassLoader classLoader) {
+				ClassLoader classLoader)
+		{
 			final List<Class<?>> classes = new ArrayList<Class<?>>();
-			try {
+			try
+			{
 				final JarFile jarFile = new JarFile(file);
 				Enumeration<JarEntry> enumeration = jarFile.entries();
-				while (enumeration.hasMoreElements()) {
+				while (enumeration.hasMoreElements())
+				{
 					final JarEntry jarEntry = enumeration.nextElement();
 					if (jarEntry.isDirectory()
 							|| !jarEntry.getName().toLowerCase().trim()
-									.endsWith(".class")) {
+									.endsWith(".class"))
+					{
 						continue;
 					}
 					classes.add(classLoader.loadClass(jarEntry.getName()
 							.replace(".class", "").replace("/", ".")));
 				}
 				jarFile.close();
-			} catch (IOException e) {
+			} catch (IOException e)
+			{
 				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
+			} catch (ClassNotFoundException e)
+			{
 				e.printStackTrace();
 			}
 			return classes;
