@@ -26,6 +26,8 @@ public class References
 	public static final String ENABLED_MSG = "The beautiful Paintball minigame plugin has enabled!";
 	public static final String DISBALED_MSG = "Paintball has disabled! But why would you do this to such a smexy minigame?";
 	
+	public static final String PB_MSG_CHANNEL = "Paintball";
+	
 	public static final String PB_CMD_MSG_1 = ColorUtil.formatString("<aqua>----------------------------------");
 	public static final String PB_CMD_MSG_2 = ColorUtil.formatString("<gold>   %s", NAME);
 	public static final String PB_CMD_MSG_3 = ColorUtil.formatString("<gold>   Version: <aqua>%s", VERSION);

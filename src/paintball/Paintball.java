@@ -14,6 +14,7 @@ import lombok.Getter;
 import org.apache.commons.lang.Validate;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import paintball.bungee.PluginMessaging;
 import paintball.commands.PBCommandFramework;
 import paintball.lib.References;
 
@@ -44,13 +45,20 @@ public class Paintball extends JavaPlugin
 	
 	@Override public void onEnable()
 	{
-		try {
+		try 
+		{
 			cmdFramework = new PBCommandFramework(get());
 			cmdFramework.registerCommands();
 			cmdFramework.registerHelp();
 			
 			PaintballUtil.registerEvents(get());
 			
+		    this.getServer().getMessenger()
+		    	.registerOutgoingPluginChannel(get(), References.PB_MSG_CHANNEL);
+		    this.getServer().getMessenger()
+		    	.registerIncomingPluginChannel(get(), References.PB_MSG_CHANNEL,
+		    			new PluginMessaging());
+		    
 			PBAPI = new PaintballAPI();
 			if (!PBAPI.isInitialized())
 			{
@@ -58,9 +66,11 @@ public class Paintball extends JavaPlugin
 				getPBLogger().log(Level.INFO, "PaintballAPI Initialized!");
 			}
 			
-		} catch (Exception e) {
+		} catch (Exception e) 
+		{
 			e.printStackTrace();
-		} finally {
+		} finally 
+		{
 			log(References.ENABLED_MSG);
 		}
 	}
@@ -69,9 +79,11 @@ public class Paintball extends JavaPlugin
 	{
 		try {
 			
-		} catch (Exception e) {
+		} catch (Exception e) 
+		{
 			e.printStackTrace();
-		} finally {
+		} finally 
+		{
 			log(References.DISBALED_MSG);
 		}
 	}
